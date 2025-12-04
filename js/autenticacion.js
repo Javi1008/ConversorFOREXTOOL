@@ -681,4 +681,4 @@ document.addEventListener('DOMContentLoaded', function() {
     configurarEventListenersEliminarCuenta();
 });
 
-console.log('✅ Sistema de autenticación inicializado correctamente');
+console.log('✅ Sistema de autenticación inicializado correctamente');// Nuevo comentario de prueba
