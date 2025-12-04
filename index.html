@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Conversor de Monedas FOREX TOOL</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <!-- js/estadoGlobalyDom.js - Notificación global -->
+    <div class="notification" id="notification"></div>
+
+    <!-- js/estadoGlobalyDom.js - Contenedor principal de la aplicación -->
+    <div class="app-container">
+        <header class="app-header">
+            <h1>BIENVENIDO A LA APP DE CONVERSIONES FOREX TOOL</h1>
+        </header>
+
+        <!-- js/funcionesInterfazUsuario.js - Navegación y cambio de tema -->
+        <nav class="app-nav">
+            <div class="nav-tabs">
+                <div class="nav-tab active" data-tab="converter">Conversor</div>
+                <div class="nav-tab" data-tab="comparator">Comparador</div>
+                <div class="nav-tab" data-tab="inverse">Calculadora Inversa</div>
+                <div class="nav-tab" data-tab="favorites">Favoritos</div>
+                <div class="nav-tab" data-tab="history">Historial</div>
+                <div class="nav-tab" data-tab="trends">Tendencias</div>
+            </div>
+            <button class="theme-toggle" id="theme-toggle">
+                <span>☽</span>
+            </button>
+        </nav>
+
+        <main class="app-main">
+            <div class="content-area">
+                <!-- js/conversor.js - Sección principal del conversor -->
+                <div class="app-card tab-content" id="converter-tab">
+                    <div class="converter-section">
+                        <h2 class="converter-title">Conversor de Monedas</h2>
+                        <div class="converter-form">
+                            <div class="form-group">
+                                <label for="amount" class="currency-label">Cantidad</label>
+                                <input type="number" id="amount" class="converter-input" 
+                                       placeholder="Ingrese Cantidad" step="0.01" min="0">
+                            </div>
+                            <div class="currency-row">
+                                <div class="currency-selectors">
+                                    <label for="monedaOrigen" class="currency-label">De</label>
+                                    <select id="monedaOrigen" class="currency-select">
+                                        <option value="">Cargando monedas...</option>
+                                    </select>
+                                </div>
+                                <button type="button" class="swap-button" id="intercambiar">
+                                    <i>↔</i>
+                                </button>
+                                <div class="currency-selectors">
+                                    <label for="monedaDestino" class="currency-label">A</label>
+                                    <select id="monedaDestino" class="currency-select">
+                                        <option value="">Cargando monedas...</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <button type="button" id="convertir" class="convert-btn">Convertir</button>
+                        </div>
+                        <div id="resultado" class="conversion-result"></div>
+                        <p id="tasa" style="text-align: center; margin-top: 10px; color: #666;"></p>
+                    </div>
+                </div>
+
+                <!-- js/comparadorDeMonedas.js - Comparador de monedas -->
+                <div class="app-card tab-content hidden" id="comparator-tab">
+                    <h2>Comparador de Monedas</h2>
+                    <p>Selecciona una moneda base para compararla con 7 monedas diferentes</p>
+                    <div class="form-group" style="margin-top: 15px;">
+                        <label for="base-currency">Moneda Base</label>
+                        <select id="base-currency" class="currency-select">
+                            <option value="USD">USD (Dólar Estadounidense)</option>
+                            <option value="EUR">EUR (Euro)</option>
+                            <option value="PEN">PEN (Sol Peruano)</option>
+                        </select>
+                    </div>
+                    <div class="comparator-grid" id="comparator-results">
+                        <!-- Los resultados se generarán dinámicamente -->
+                    </div>
+                </div>
+
+                <!-- js/calculadoraInversa.js - Calculadora inversa -->
+                <div class="app-card tab-content hidden" id="inverse-tab">
+                    <h2>Calculadora Inversa</h2>
+                    <p>Calcula cuánto necesitas en una moneda para obtener una cantidad específica en otra</p>
+                    <div class="inverse-form">
+                        <form id="inverse-form">
+                            <div class="form-group">
+                                <label for="inverse-target">Quiero obtener</label>
+                                <input type="number" id="inverse-target" class="converter-input" 
+                                       placeholder="Cantidad deseada" step="0.01" min="0" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="inverse-to-currency">En esta moneda</label>
+                                <select id="inverse-to-currency" class="currency-select" required>
+                                    <option value="">Selecciona moneda destino</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="inverse-from-currency">Usando esta moneda</label>
+                                <select id="inverse-from-currency" class="currency-select" required>
+                                    <option value="">Selecciona moneda origen</option>
+                                </select>
+                            </div>
+                            <button type="submit" class="btn">Calcular</button>
+                        </form>
+                        <div id="inverse-result" class="inverse-result" style="display: none;"></div>
+                    </div>
+                </div>
+
+                <!-- js/conversionesFavoritas.js - Conversiones favoritas -->
+                <div class="app-card tab-content hidden" id="favorites-tab">
+                    <h2>Conversiones Favoritas</h2>
+                    <p>Tu conversión más frecuente y otras conversiones realizadas</p>
+                    <div id="favorites-results">
+                        <!-- Los favoritos se generarán dinámicamente -->
+                    </div>
+                </div>
+
+                <!-- js/historialDeConversiones.js - Historial de conversiones -->
+                <div class="app-card tab-content hidden" id="history-tab">
+                    <h2>Historial de Conversiones</h2>
+                    <div class="history-actions">
+                        <button class="btn btn-danger" id="delete-conversions">ELIMINAR HISTORIAL</button>
+                    </div>
+                    <div style="overflow-x: auto;">
+                        <table class="history-table">
+                            <thead>
+                                <tr>
+                                    <th>Fecha</th>
+                                    <th>De</th>
+                                    <th>A</th>
+                                    <th>Cantidad</th>
+                                    <th>Resultado</th>
+                                </tr>
+                            </thead>
+                            <tbody id="history-body">
+                                <tr>
+                                    <td colspan="5" style="text-align: center;">No hay conversiones en el historial</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- js/tendencias.js - Gráfico de tendencias -->
+                <div class="app-card tab-content hidden" id="trends-tab">
+                    <h2>Tendencias USD y EUR a PEN</h2>
+                    <p>Visualiza cómo han variado las tasas de cambio durante la última semana</p>
+                    <div class="chart-container">
+                        <canvas id="trendsChart"></canvas><!-- ← AQUÍ SE MUESTRA EL GRÁFICO -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- js/estadoGlobalyDom.js - Perfil de usuario -->
+            <div class="app-card profile-card">
+                <h2>PERFIL DE USUARIO</h2>
+                <div class="profile-info">
+                    <div class="profile-field">
+                        <div class="profile-label">Nombre de Usuario</div>
+                        <div class="profile-value" id="profile-username">-</div>
+                    </div>
+                    <div class="profile-field">
+                        <div class="profile-label">Correo:</div>
+                        <div class="profile-value" id="profile-email">-</div>
+                    </div>
+                    <div class="profile-field">
+                        <div class="profile-label">Moneda Preferida:</div>
+                        <div class="profile-value" id="profile-currency">-</div>
+                    </div>
+                    <div class="profile-field">
+                        <div class="profile-label">Creado:</div>
+                        <div class="profile-value" id="profile-created">-</div>
+                    </div>
+                    <div class="profile-field">
+                        <div class="profile-label">Entradas Historial:</div>
+                        <div class="profile-value" id="profile-history-count">0</div>
+                    </div>
+                </div>
+                <div class="profile-actions">
+                    <button class="btn" id="btnShowEditProfile">Editar Perfil</button>
+                    <button class="btn btn-danger" id="btnEliminarCuenta">Eliminar Cuenta</button>
+                    <button class="btn btn-danger" id="btnEliminarUsuario">Cerrar Sesión</button>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- js/autenticacion.js - Modal de inicio de sesión -->
+    <div class="modal-overlay" id="loginModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h2>Iniciar Sesión</h2>
+            </div>
+            <div class="modal-body">
+                <form id="loginForm">
+                    <div class="form-group">
+                        <label for="loginEmail">Correo Electrónico:</label>
+                        <input type="email" id="loginEmail" placeholder="tu@email.com" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="loginPassword">Contraseña:</label>
+                        <input type="password" id="loginPassword" placeholder="Contraseña" required>
+                    </div>
+                    <div class="error-message" id="loginError"></div>
+                    <button type="button" class="btn" id="btnLogin" style="width: 100%; margin-top: 10px;">Iniciar Sesión</button>
+                </form>
+                <div style="text-align: center; margin-top: 20px;">
+                    <p>¿No tienes cuenta? <a href="#" id="btnShowRegister" style="color: #8A2BE2; text-decoration: none; font-weight: bold;">Crear cuenta</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- js/autenticacion.js - Modal de registro -->
+    <div class="modal-overlay" id="registerModal" style="display: none;">
+        <div class="modal">
+            <div class="modal-header">
+                <h2>Crear Cuenta</h2>
+            </div>
+            <div class="modal-body">
+                <form id="registerForm">
+                    <div class="form-group">
+                        <label for="registerName">Nombre Completo:</label>
+                        <input type="text" id="registerName" placeholder="Nombre completo" required>
+                        <div class="error-message" id="registerNameError"></div>
+                    </div>
+                    <div class="form-group">
+                        <label for="registerEmail">Correo Electrónico:</label>
+                        <input type="email" id="registerEmail" placeholder="tu@email.com" required>
+                        <div class="error-message" id="registerEmailError"></div>
+                    </div>
+                    <div class="form-group">
+                        <label for="registerPassword">Contraseña:</label>
+                        <input type="password" id="registerPassword" placeholder="Mínimo 4 caracteres" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="registerConfirmPassword">Confirmar Contraseña:</label>
+                        <input type="password" id="registerConfirmPassword" placeholder="Confirmar contraseña" required>
+                        <div class="error-message" id="registerPasswordError"></div>
+                    </div>
+                    <div class="form-group">
+                        <label for="registerPrefCurrency">Moneda Preferida:</label>
+                        <select id="registerPrefCurrency">
+                            <!-- Las opciones se generarán dinámicamente con JavaScript -->
+                        </select>
+                    </div>
+                    <button type="button" class="btn" id="btnRegister" style="width: 100%; margin-top: 10px;">Crear Cuenta</button>
+                </form>
+                <div style="text-align: center; margin-top: 20px;">
+                    <p>¿Ya tienes cuenta? <a href="#" id="btnShowLogin" style="color: #8A2BE2; text-decoration: none; font-weight: bold;">Iniciar sesión</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- js/edicionPerfilUsuario.js - Modal de edición de perfil -->
+    <div class="modal-overlay" id="editProfileModal" style="display: none;">
+        <div class="modal" style="max-width: 600px;">
+            <div class="modal-header">
+                <h2 id="editProfileTitle">EDITAR PERFIL : "Nombre del Usuario"</h2>
+                <button class="modal-close" id="btnCloseEditProfile">&times;</button>
+            </div>
+            
+            <div class="modal-body">
+                <p class="modal-subtitle">Ingresa los cambios que quieres editar</p>
+                
+                <form id="editProfileForm">
+                    <div class="form-row">
+                        <div class="form-group half-width">
+                            <label for="editProfileName">Nombre completo:</label>
+                            <input type="text" id="editProfileName" placeholder="Nombre completo" required>
+                            <div class="error-message" id="editProfileNameError"></div>
+                        </div>
+                        <div class="form-group half-width">
+                            <label for="editProfileEmail">Correo:</label>
+                            <input type="email" id="editProfileEmail" placeholder="Correo nuevo">
+                        </div>
+                    </div>
+
+                    <div class="form-group half-width">
+                        <label for="editProfilePrefCurrency">Moneda Preferida:</label>
+                        <select id="editProfilePrefCurrency">
+                            <!-- Las opciones se generarán dinámicamente con JavaScript -->
+                        </select>
+                    </div>
+
+                    <hr class="modal-divider">
+
+                    <p class="hint-text">Dejar en blanco para no cambiar la contraseña</p>
+                    
+                    <div class="form-group">
+                        <label for="editProfileNewPass">Nueva Contraseña:</label>
+                        <input type="password" id="editProfileNewPass">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="editProfileConfirmPass">Confirmar Nueva Contraseña:</label>
+                        <input type="password" id="editProfileConfirmPass">
+                        <div class="error-message" id="editProfilePassError"></div>
+                    </div>
+
+                    <div class="modal-footer-buttons">
+                        <button type="button" class="btn btn-secondary" id="btnCancelProfile">Cancelar</button>
+                        <button type="button" class="btn btn-primary" id="btnUpdateProfile">Guardar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de confirmación para eliminar cuenta -->
+    <div class="modal-overlay" id="confirmDeleteModal" style="display: none;">
+        <div class="modal">
+            <div class="modal-header">
+                <h2>¿Estás seguro?</h2>
+            </div>
+            <div class="modal-body">
+                <div class="warning-message">
+                    <p>⚠️ <strong>ADVERTENCIA:</strong> Esta acción no se puede deshacer.</p>
+                    <p>Se eliminarán todos tus datos, historial de conversiones y la cuenta permanentemente.</p>
+                </div>
+                <div class="confirmation-actions">
+                    <button class="btn btn-secondary" id="btnCancelDelete">No, Cancelar</button>
+                    <button class="btn btn-danger" id="btnConfirmDelete">Sí, Eliminar Cuenta</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- IMPORTANTE: Cargar scripts en orden correcto -->
+    <script src="js/configuracionConstantes.js"></script>
+    <script src="js/estadoGlobalyDom.js"></script>
+    <script src="js/validacionesUtilitarias.js"></script>
+    <script src="js/funcionesInterfazUsuario.js"></script>
+    <script src="js/autenticacion.js"></script>
+    <script src="js/conversor.js"></script>
+    <script src="js/historialDeConversiones.js"></script>
+    <script src="js/tendencias.js"></script>
+    <script src="js/conversionesFavoritas.js"></script>
+    <script src="js/comparadorDeMonedas.js"></script>
+    <script src="js/calculadoraInversa.js"></script>
+    <script src="js/edicionPerfilUsuario.js"></script>
+    <script src="js/inicializacion.js"></script>
+</body>
+</html>
